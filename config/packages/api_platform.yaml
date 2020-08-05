@@ -14,7 +14,7 @@ api_platform:
         json:     ['application/json']
         html:     ['text/html']
         jsonhal:  ['application/hal+json']
-    collection:
-        pagination:
-            items_per_page: 2
-            client_items_per_page: true
+#    collection:
+#        pagination:
+#            items_per_page: 2
+#            client_items_per_page: true

@@ -14,7 +14,7 @@ class DepotVoter extends Voter
     {
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, ['POST', 'GET', 'GETALL', 'EDIT', 'DELET'])
+        return in_array($attribute, ['POST', 'GET', 'EDIT', 'DELET'])
             && $subject instanceof Depot;
     }
 
@@ -23,7 +23,7 @@ class DepotVoter extends Voter
         // On récupère le USER grâce à son token
         $user = $token->getUser();
 
-        // On récupère le rôle du USER
+        // On récupère le rôle du USER qui effectue l'action
         $role = $user->getRoles()[0];
 
         // if the user is anonymous, do not grant access
@@ -48,17 +48,6 @@ class DepotVoter extends Voter
 
                 if($role==='ROLE_ADMIN' || $role==='ROLE_CAISSIER'){
                     return true;
-                }
-                break;
-
-            case 'GETALL':
-
-                if($role === 'ROLE_ADMIN'){
-                    return true;
-                }elseif($role === 'CAISSIER'){
-                    if($subject->getUser()->getUsername() === $user->getUsername()){
-                        return true;
-                    }
                 }
                 break;
 

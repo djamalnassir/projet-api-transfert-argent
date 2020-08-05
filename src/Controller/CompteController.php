@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Compte;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -13,13 +12,11 @@ class CompteController extends AbstractController
 {
     private $token;
     private $encoder;
-    private $manager;
 
-    public function __construct(UserPasswordEncoderInterface $encoder, EntityManagerInterface $manager, TokenStorageInterface $token)
+    public function __construct(UserPasswordEncoderInterface $encoder, TokenStorageInterface $token)
     {
         $this->token = $token;
         $this->encoder = $encoder;
-        $this->manager = $manager;
     }
 
     public function __invoke(Compte $data): Compte

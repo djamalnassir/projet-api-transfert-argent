@@ -36,15 +36,14 @@ class PartenaireRepository extends ServiceEntityRepository
     }
     */
 
-    /*
-    public function findOneBySomeField($value): ?Partenaire
+    public function findOneByNinea($ninea): ?Partenaire
     {
         return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
+            ->andWhere('p.ninea = :val')
+            ->setParameter('val', $ninea)
             ->getQuery()
             ->getOneOrNullResult()
         ;
     }
-    */
+
 }

@@ -14,7 +14,7 @@ class CompteVoter extends Voter
     {
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, ['POST', 'GET', 'GETALL', 'EDIT', 'DELET'])
+        return in_array($attribute, ['POST', 'GET', 'EDIT', 'DELET'])
             && $subject instanceof Compte;
     }
 
@@ -51,13 +51,6 @@ class CompteVoter extends Voter
                 }
                 break;
 
-            case 'GETALL':
-
-                if($role === 'ROLE_ADMIN' || $role === 'ROLE_SUPER_ADMIN' || $role === 'CAISSIER'){
-                    return true;
-                }
-                break;
-
             case 'GET':
 
                 if($role==='ROLE_ADMIN' || $role==='ROLE_SUPER_ADMIN' || $role === 'CAISSIER'){
@@ -71,6 +64,7 @@ class CompteVoter extends Voter
                     return true;
                 }
                 break;
+                
             case 'DELET':
 
                 if($role==='ROLE_ADMIN' || $role==='ROLE_SUPER_ADMIN'){

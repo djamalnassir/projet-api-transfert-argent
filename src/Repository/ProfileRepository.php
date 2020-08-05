@@ -9,6 +9,7 @@ use Doctrine\Common\Persistence\ManagerRegistry;
 /**
  * @method Profile|null find($id, $lockMode = null, $lockVersion = null)
  * @method Profile|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Profile|null findOneByLibelle(string $libelle)
  * @method Profile[]    findAll()
  * @method Profile[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
@@ -36,15 +37,15 @@ class ProfileRepository extends ServiceEntityRepository
     }
     */
 
-    /*
-    public function findOneBySomeField($value): ?Profile
+    
+    public function findOneByLibelle($libelle): ?Profile
     {
         return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
+            ->andWhere('p.libelle = :val')
+            ->setParameter('val', $libelle)
             ->getQuery()
             ->getOneOrNullResult()
         ;
     }
-    */
+    
 }

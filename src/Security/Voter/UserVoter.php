@@ -3,6 +3,7 @@
 namespace App\Security\Voter;
 
 use App\Entity\User;
+use App\Repository\PartenaireRepository;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -14,15 +15,24 @@ class UserVoter extends Voter
     {
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, ['POST', 'DELET', 'VIEW', 'EDIT', 'GET'])
+        return in_array($attribute, ['POST', 'DELET', 'EDIT', 'GET'])
             && $subject instanceof User;
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
         $user = $token->getUser();
-        $role = $user->getRoles()[0];
-        $profile = $subject->getProfile()->getLibelle();
+        $role = $user->getRoles()[0]; // le role du USER qui effectue la création
+        $profile = $subject->getProfile()->getLibelle(); // le profile du USER qui est créé
+
+        $part_id = 0; $part_id_connecte = 0;
+
+        if ($user->getPartenaire())
+        {
+            $part_id_connecte = (int)$user->getPartenaire()->getId();
+
+        }
+
 
         // if the user is anonymous, do not grant access
         if (!$user instanceof UserInterface) {
@@ -43,43 +53,99 @@ class UserVoter extends Voter
         switch ($attribute) {
 
             case 'POST':
+                
+                if($role==='ROLE_SUPER_ADMIN' && $profile==='ADMIN'){
 
-                if(($role==='ROLE_ADMIN' || $role==='ROLE_SUPER_ADMIN') && ($profile==='CAISSIER' || $profile==='PARTENAIRE')){
+                   return true;
+
+                }elseif(($role==='ROLE_SUPER_ADMIN' || $role==='ROLE_ADMIN') && ($profile==='CAISSIER' || $profile==='PARTENAIRE')){
+                    
+                    return true;
+
+                }elseif($role==='ROLE_PARTENAIRE' && $profile==='ADMIN_PARTENAIRE'){
+
+                    return true;
+
+                }elseif(($role==='ROLE_PARTENAIRE' || $role==='ROLE_ADMIN_PARTENAIRE') && ($profile==='CAISSIER_PARTENAIRE')){
+                    
                     return true;
                 }
                 break;
 
             case 'DELET':
 
-                if(($role==='ROLE_ADMIN' || $role==='ROLE_SUPER_ADMIN') && ($profile==='CAISSIER' || $profile==='PARTENAIRE')){
+                if ($subject->getPartenaire()->getId())
+                {
+                    $part_id = (int)$subject->getPartenaire()->getId();
+
+                }
+
+                if($role==='ROLE_SUPER_ADMIN' && $profile==='ADMIN')
+                {
+                    return true;
+
+                }elseif(($role==='ROLE_SUPER_ADMIN' || $role==='ROLE_ADMIN') && ($profile==='CAISSIER' || $profile==='PARTENAIRE'))
+                {
+                    return true;
+
+                }elseif(($role==='ROLE_PARTENAIRE' && $profile==='ADMIN_PARTENAIRE') && ($part_id_connecte === $part_id))
+                { 
+                    return true;
+                    
+                }elseif(($role==='ROLE_PARTENAIRE' || $role==='ROLE_ADMIN_PARTENAIRE') && 
+                    ($profile==='CAISSIER_PARTENAIRE' && $part_id_connecte === $part_id))
+                {
+                    
                     return true;
                 }
-                break;
 
-            case 'VIEW':
-
-                if($role === 'ROLE_ADMIN' || $role === 'ROLE_SUPER_ADMIN'){
-                    return true;
-                }
-                break;
+                break;  
 
             case 'EDIT':
 
-                if(($role==='ROLE_ADMIN' || $role==='ROLE_SUPER_ADMIN') && ($profile==='CAISSIER' || $profile==='PARTENAIRE')){
+                if ($subject->getPartenaire()->getId())
+                {
+                    $part_id = (int)$subject->getPartenaire()->getId();
+
+                }
+
+                if($role==='ROLE_SUPER_ADMIN' && $profile==='ADMIN'){
+
                     return true;
-                }elseif($role==='ROLE_SUPER_ADMIN'){
-                    if($profile==='CAISSIER' || $profile==='PARTENAIRE' || $profile==='ADMIN' || $profile==='SUPER_ADMIN'){
-                        return true;
-                    }
+ 
+                }elseif(($role==='ROLE_SUPER_ADMIN' || $role==='ROLE_ADMIN') && ($profile==='CAISSIER' || $profile==='PARTENAIRE'))
+                {
+                    return true;
+
+                }elseif(($role==='ROLE_PARTENAIRE' && $profile==='ADMIN_PARTENAIRE') && ($part_id_connecte === $part_id))
+                {
+                    return true;
+
+                }elseif(($role==='ROLE_PARTENAIRE' || $role==='ROLE_ADMIN_PARTENAIRE') && 
+                    ($profile==='CAISSIER_PARTENAIRE' && $part_id_connecte === $part_id))
+                {
+                    return true;
                 }
                 break;
 
             case 'GET':
 
-                if(($role==='ROLE_ADMIN') && ($profile==='CAISSIER' || $profile==='PARTENAIRE')){
+                if($role==='ROLE_SUPER_ADMIN' && $profile==='ADMIN'){
+
                     return true;
-                }elseif(($role==='ROLE_SUPER_ADMIN') && ($profile==='CAISSIER' || $profile==='PARTENAIRE' || $profile==='ADMIN')){
+ 
+                }elseif(($role==='ROLE_SUPER_ADMIN' || $role==='ROLE_ADMIN') && ($profile==='CAISSIER' || $profile==='PARTENAIRE')){
+                     
                     return true;
+ 
+                }elseif($role==='ROLE_PARTENAIRE' && $profile==='ADMIN_PARTENAIRE'){
+ 
+                    return true;
+ 
+                }elseif(($role==='ROLE_PARTENAIRE' || $role==='ROLE_ADMIN_PARTENAIRE') && ($profile==='CAISSIER_PARTENAIRE')){
+                     
+                    return true;
+ 
                 }
                 break;
         }

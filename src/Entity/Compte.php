@@ -3,25 +3,23 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Controller\CompteController;
+use ApiPlatform\Core\Annotation\ApiFilter;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
-use App\Controller\CompteController;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
  * @ApiResource(
  * 
- *      normalizationContext={"groups"={"read"}},
- *      denormalizationContext={"groups"={"write"}},
- * 
- *      normalizationContext={"groups"={"input"}},
- *      denormalizationContext={"groups"={"output"}},
+ *      normalizationContext={"groups"={"compteRead"}},
+ *      denormalizationContext={"groups"={"compteWrite"}},
  * 
  *      collectionOperations={
- *          "get"={
- *              "access_control"="is_granted('ROLE_ADMIN')" 
- *          },
+ * 
+ *          "get"={},
  *          "post"={
  *              "controller"=CompteController::class,
  *              "access_control"="is_granted('POST', object)",
@@ -43,6 +41,7 @@ use App\Controller\CompteController;
  *          }
  *     },
  * )
+ * @ApiFilter(SearchFilter::class, properties={"partenaire": "exact"})
  * @ORM\Entity(repositoryClass="App\Repository\CompteRepository")
  */
 class Compte
@@ -55,7 +54,7 @@ class Compte
     private $id;
 
     /**
-     * @Groups({"output", "input"})
+     * 
      * @ORM\Column(type="string", length=255)
      */
     private $numeroCompte;
@@ -78,17 +77,33 @@ class Compte
     private $userCreateur;
 
     /**
-     * @Groups({"read", "write"})
+     * @Groups({"compteRead", "compteWrite"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Partenaire", inversedBy="comptes", cascade={"persist"})
      * @ORM\JoinColumn(nullable=false)
      */
     private $partenaire;
 
     /**
-     * @Groups({"read", "write"})
+     * 
+     * @Groups({"compteRead", "compteWrite"})
      * @ORM\OneToMany(targetEntity="App\Entity\Depot", mappedBy="compte", orphanRemoval=true, cascade={"persist"})
      */
     private $depots;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Transaction", mappedBy="compteEnvoi", orphanRemoval=true)
+     */
+    private $transactionEnvois;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Transaction", mappedBy="compteRetrait", orphanRemoval=true)
+     */
+    private $transactionRetraits;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Affectation", mappedBy="compte", orphanRemoval=true)
+     */
+    private $affectations;
 
     public function __construct()
     {
@@ -96,6 +111,8 @@ class Compte
         $this->depots = new ArrayCollection();
         $this->dateCreation = new \DateTime();
         $this->numeroCompte = "C00001A";
+        $this->transactions = new ArrayCollection();
+        $this->affectations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -188,6 +205,102 @@ class Compte
             // set the owning side to null (unless already changed)
             if ($depot->getCompte() === $this) {
                 $depot->setCompte(null);
+            }
+        }
+
+        return $this;
+    }
+
+    // Opération d'envoi d'argent
+    /**
+     * @return Collection|Transaction[]
+     */
+    public function getTransactionEnvois(): Collection
+    {
+        return $this->transactions;
+    }
+
+    public function addTransactionEnvoi(Transaction $transaction): self
+    {
+        if (!$this->transactionEnvois->contains($transaction)) {
+            $this->transactionEnvois[] = $transaction;
+            $transaction->setCompteEnvoi($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransactionEnvoi(Transaction $transaction): self
+    {
+        if ($this->transactionEnvois->contains($transaction)) {
+            $this->transactionEnvois->removeElement($transaction);
+            // set the owning side to null (unless already changed)
+            if ($transaction->getCompteEnvoi() === $this) {
+                $transaction->setCompteEnvoi(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+    // Opération de retrait d'argent
+    /**
+     * @return Collection|Transaction[]
+     */
+    public function getTransactionRetraits(): Collection
+    {
+        return $this->transactions;
+    }
+
+    public function addTransactionRetrait(Transaction $transaction): self
+    {
+        if (!$this->transactionRetraits->contains($transaction)) {
+            $this->transactionRetraits[] = $transaction;
+            $transaction->setCompteRetrait($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransactionRetrait(Transaction $transaction): self
+    {
+        if ($this->transactionRetraits->contains($transaction)) {
+            $this->transactionRetraits->removeElement($transaction);
+            // set the owning side to null (unless already changed)
+            if ($transaction->getCompteRetrait() === $this) {
+                $transaction->setCompteRetrait(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Affectation[]
+     */
+    public function getAffectations(): Collection
+    {
+        return $this->affectations;
+    }
+
+    public function addAffectation(Affectation $affectation): self
+    {
+        if (!$this->affectations->contains($affectation)) {
+            $this->affectations[] = $affectation;
+            $affectation->setCompte($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAffectation(Affectation $affectation): self
+    {
+        if ($this->affectations->contains($affectation)) {
+            $this->affectations->removeElement($affectation);
+            // set the owning side to null (unless already changed)
+            if ($affectation->getCompte() === $this) {
+                $affectation->setCompte(null);
             }
         }
 

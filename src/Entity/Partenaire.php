@@ -10,8 +10,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
- *      normalizationContext={"groups"={"read"}},
- *      denormalizationContext={"groups"={"write"}},
+ *      normalizationContext={"groups"={"compteRead"}},
+ *      denormalizationContext={"groups"={"compteWrite"}},
  * )
  * @ORM\Entity(repositoryClass="App\Repository\PartenaireRepository")
  */
@@ -25,19 +25,21 @@ class Partenaire
     private $id;
 
     /**
-     * @Groups({"read", "write"})
+     * 
+     * @Groups({"compteRead", "compteWrite"})
      * @ORM\Column(type="string", length=255)
      */
     private $ninea;
 
     /**
-     * @Groups({"read", "write"})
+     * 
+     * @Groups({"compteRead", "compteWrite"})
      * @ORM\Column(type="string", length=255)
      */
     private $registreCommerce;
 
     /**
-     * @Groups({"read", "write"})
+     * @Groups({"compteRead", "compteWrite"})
      * @ORM\OneToMany(targetEntity="App\Entity\User", mappedBy="partenaire", cascade={"persist"})
      */
     private $users;

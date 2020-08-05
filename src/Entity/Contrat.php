@@ -28,7 +28,6 @@ class Contrat
     private $dateSignature;
 
     /**
-     * @Groups({"read", "write"})
      * @ORM\Column(type="text", nullable=true)
      */
     private $description;
@@ -38,6 +37,18 @@ class Contrat
      * @ORM\JoinColumn(nullable=false)
      */
     private $partenaire;
+
+    public function __construct(\DateTimeInterface $dateSignature)
+    {
+        $description = "Le vice, selon l’article 1641 c.civ., s’entend d’un « défaut » de la chose. 
+                        Le vice est donc « nécessairement inhérent à la chose elle-même » et ne saurait découler de facteurs extrinsèques – ainsi, 
+                        un médicament n’est pas affecté d’un risque à raison de son incompatibilité avec un autre (Civ. 1, 8 avr. 1986, n° 84-11.443, Bull. 
+                        civ. I, 82) –, quoique la jurisprudence admette que des éléments liés à la chose contiennent le vice de celle-ci – ainsi, 
+                        la fragilité du sol sur lequel est bâti un immeuble peut constituer le vice (Civ. 3, 24 janv. 2012, n° 11-10.420).";
+                        
+        $this->dateSignature = new \DateTime();
+        $this->description = $description;
+    }
 
     public function getId(): ?int
     {
